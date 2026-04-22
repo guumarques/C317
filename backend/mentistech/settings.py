@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'chat',
     'dashboard',
     'alerts',
+    'gamification',
 ]
 
 MIDDLEWARE = [
