@@ -55,18 +55,16 @@ class RegisterSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id']
 
-    def validate(self, data):
-        if data['password'] != data['password_confirm']:
+    def validate(self, attrs):
+        if attrs['password'] != attrs['password_confirm']:
             raise serializers.ValidationError({
                 'password_confirm': 'As senhas não coincidem.'
-            })
-
-        if not data.get('lgpd_consent'):
+        })
+        if not attrs.get('lgpd_consent'):
             raise serializers.ValidationError({
                 'lgpd_consent': 'É necessário aceitar os termos da LGPD.'
-            })
-
-        return data
+        })
+        return attrs
 
     def create(self, validated_data):
         validated_data.pop('password_confirm')

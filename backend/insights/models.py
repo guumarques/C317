@@ -10,7 +10,7 @@ class Insights(models.Model):
         verbose_name_plural = 'Insights'
         
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    questionnaire_id = models.ForeignKey('questionnaires.Questionnaires', on_delete=models.CASCADE)
+    questionnaire = models.ForeignKey('questionnaires.Questionnaires', on_delete=models.CASCADE)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
     content = models.TextField()
     status = models.CharField(max_length=20, default='pending')  # pending, completed, failed
