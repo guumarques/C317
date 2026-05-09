@@ -1,25 +1,59 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-const ROLES = [
-  { key: "funcionario", label: "Funcionário", icon: "👤" },
-  { key: "psicologo",   label: "Psicólogo",   icon: "🩺" },
-  { key: "gestor",      label: "Gestor",       icon: "📊" },
-];
-
-export default function Login({ onLogin }) {
-  const [email, setEmail]       = useState("");
+export default function Login() {
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError]       = useState("");
+  const [loading, setLoading]   = useState(false);
+  const navigate = useNavigate();
 
-  function handleSubmit(role) {
-    if (!email || !password) {
-      setError("Preencha e-mail e senha.");
+  async function handleSubmit(e) {
+    e.preventDefault();
+    if (!username || !password) {
+      setError("Preencha usuário e senha.");
       return;
     }
+
     setError("");
-    // Chama o callback com o perfil escolhido
-    // Substitua por sua lógica de autenticação real (fetch para o backend)
-    onLogin?.({ email, role });
+    setLoading(true);
+
+    try {
+      // 1. Faz login e pega os tokens
+      const res = await fetch("http://localhost:8000/api/users/login/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+
+      if (!res.ok) {
+        setError("Usuário ou senha inválidos.");
+        return;
+      }
+
+      const { access, refresh } = await res.json();
+      localStorage.setItem("token", access);
+      localStorage.setItem("refresh", refresh);
+
+      // 2. Busca os dados do usuário
+      const meRes = await fetch("http://localhost:8000/api/users/me/", {
+        headers: { Authorization: `Bearer ${access}` },
+      });
+
+      const user = await meRes.json();
+      localStorage.setItem("user", JSON.stringify(user));
+
+      // 3. Redireciona conforme lgpd_consent
+      if (!user.lgpd_consent) {
+        navigate("/lgpd");
+      } else {
+        navigate("/home");
+      }
+    } catch {
+      setError("Erro ao conectar com o servidor.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -39,15 +73,15 @@ export default function Login({ onLogin }) {
           </p>
         </div>
 
-        {/* Campos */}
-        <div className="flex flex-col gap-4 mb-5">
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4 mb-5">
           <div className="flex flex-col gap-1">
-            <label className="text-xs text-gray-500">E-mail corporativo</label>
+            <label className="text-xs text-gray-500">Usuário</label>
             <input
-              type="email"
-              placeholder="seu@empresa.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type="text"
+              placeholder="seu.usuario"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               className="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 placeholder-gray-300 focus:outline-none focus:border-green-600 transition-colors"
             />
           </div>
@@ -61,43 +95,18 @@ export default function Login({ onLogin }) {
               className="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 placeholder-gray-300 focus:outline-none focus:border-green-600 transition-colors"
             />
           </div>
-        </div>
 
-        {/* Erro */}
-        {error && (
-          <p className="text-xs text-red-500 mb-4">{error}</p>
-        )}
+          {error && <p className="text-xs text-red-500">{error}</p>}
 
-        {/* Botão principal */}
-        <button
-          onClick={() => handleSubmit("funcionario")}
-          className="w-full bg-green-700 hover:bg-green-800 active:scale-[.98] text-white text-sm font-medium py-2.5 rounded-lg transition-all mb-4"
-        >
-          Entrar
-        </button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-green-700 hover:bg-green-800 disabled:opacity-60 active:scale-[.98] text-white text-sm font-medium py-2.5 rounded-lg transition-all"
+          >
+            {loading ? "Entrando..." : "Entrar"}
+          </button>
+        </form>
 
-        {/* Divisor */}
-        <div className="flex items-center gap-2 mb-4">
-          <div className="flex-1 h-px bg-gray-100" />
-          <span className="text-xs text-gray-400">ou entrar como</span>
-          <div className="flex-1 h-px bg-gray-100" />
-        </div>
-
-        {/* Botões de perfil */}
-        <div className="flex gap-2 mb-5">
-          {ROLES.map((r) => (
-            <button
-              key={r.key}
-              onClick={() => handleSubmit(r.key)}
-              className="flex-1 flex flex-col items-center gap-1 py-2 border border-gray-200 rounded-lg text-xs text-gray-500 hover:bg-gray-50 hover:border-green-600 hover:text-green-700 active:scale-[.97] transition-all"
-            >
-              <span className="text-base">{r.icon}</span>
-              {r.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Esqueci senha */}
         <p className="text-center text-xs text-gray-400 hover:text-green-700 cursor-pointer transition-colors">
           Esqueci minha senha
         </p>
