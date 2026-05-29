@@ -7,6 +7,9 @@ class ChatSession(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     started_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"Sessão de {self.user} - {self.started_at}"
+
 class ChatMessage(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     session = models.ForeignKey(ChatSession, on_delete=models.CASCADE)
@@ -16,3 +19,6 @@ class ChatMessage(models.Model):
     ])
     content = models.TextField()
     sent_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.session} - {self.role} - {self.sent_at}"

@@ -1,39 +1,8 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from .models import Company
+from django.utils import timezone
 
 User = get_user_model()
-
-class CompanySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Company
-        fields = ['id', 'name', 'created_at']
-        read_only_fields = ['id', 'created_at']
-
-class UserSerializer(serializers.ModelSerializer):
-    company = CompanySerializer(read_only=True)
-
-    class Meta:
-        model = User
-        fields = [
-            'id',
-            'username',
-            'email',
-            'first_name',
-            'last_name',
-            'company',
-            'role',
-            'lgpd_consent',
-            'consent_at',
-            'login_streak',
-            'total_points',
-        ]
-        read_only_fields = [
-            'id',
-            'consent_at',
-            'login_streak',
-            'total_points',
-        ]
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=8)
@@ -69,10 +38,33 @@ class RegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data.pop('password_confirm')
 
-        password = validated_data.pop('password')
+        if validated_data.get('lgpd_consent'):
+            validated_data['consent_at'] = timezone.now()
 
-        user = User(**validated_data)
-        user.set_password(password)
-        user.save()
+        return User.objects.create_user(**validated_data)
 
-        return user
+class UserSerializer(serializers.ModelSerializer):
+    company_name = serializers.CharField(source='company.name', read_only=True)
+
+    class Meta:
+        model = User
+        fields = [
+            'id',
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+            'company',
+            'company_name',
+            'role',
+            'lgpd_consent',
+            'consent_at',
+            'login_streak',
+            'total_points',
+        ]
+        read_only_fields = [
+            'id',
+            'consent_at',
+            'login_streak',
+            'total_points',
+        ]

@@ -16,3 +16,6 @@ class Questionnaires(models.Model):
     burnout_score = models.IntegerField()
     depression_score = models.IntegerField()
     answered_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Questionário de {self.user} - {self.answered_at}"

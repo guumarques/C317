@@ -8,3 +8,6 @@ class GamificationEvent(models.Model):
     event_type = models.CharField(max_length=50)
     points = models.IntegerField()
     occurred_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Pontos de: {self.user} - {self.points}"
