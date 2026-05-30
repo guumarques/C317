@@ -8,7 +8,7 @@ class Company(models.Model):
         verbose_name_plural = 'Companies'
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -16,12 +16,12 @@ class Company(models.Model):
 
 class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    company = models.ForeignKey(Company, on_delete=models.SET_NULL, null=True, blank=True)
+    company = models.ForeignKey(Company, on_delete=models.PROTECT, related_name="users")
     role = models.CharField(max_length=50, choices=[
         ('employee', 'Funcionário'),
         ('psychologist', 'Psicólogo'),
         ('manager', 'Gestor'),
-    ])
+    ], default='employee')
     lgpd_consent = models.BooleanField(default=False)
     consent_at = models.DateTimeField(null=True, blank=True)
     login_streak = models.IntegerField(default=0)

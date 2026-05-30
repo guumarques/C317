@@ -1,10 +1,15 @@
 from rest_framework import serializers
+
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 
 User = get_user_model()
 
 class RegisterSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(required=True)
+    first_name = serializers.CharField(required=True, allow_blank=False)
+    last_name = serializers.CharField(required=True, allow_blank=False)
+    
     password = serializers.CharField(write_only=True, min_length=8)
     password_confirm = serializers.CharField(write_only=True)
 
@@ -24,6 +29,11 @@ class RegisterSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id']
 
+    def validate_email(self, value):
+        if User.objects.filter(email=value).exists():
+            raise serializers.ValidationError('Este e-mail já está em uso.')
+        return value
+
     def validate(self, attrs):
         if attrs['password'] != attrs['password_confirm']:
             raise serializers.ValidationError({
@@ -31,7 +41,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         })
         if not attrs.get('lgpd_consent'):
             raise serializers.ValidationError({
-                'lgpd_consent': 'É necessário aceitar os termos da LGPD.'
+                'lgpd_consent': 'É necessário aceitar os termos da LGPD para realizar o cadastro.'
         })
         return attrs
 
