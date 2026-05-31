@@ -27,3 +27,21 @@ class InsightHistoryView(APIView):
         ).order_by('-created_at')
         serializer = InsightSerializer(insights, many=True)
         return Response(serializer.data)
+    
+class InsightUpdateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, pk):
+        if request.user.role != 'psychologist':
+            return Response({'error': 'Acesso negado'}, status=status.HTTP_403_FORBIDDEN)
+        
+        try:
+            insight = Insights.objects.get(pk=pk)
+        except Insights.DoesNotExist:
+            return Response({'error': 'Insight não encontrado'}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = InsightSerializer(insight, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

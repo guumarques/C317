@@ -1,7 +1,8 @@
 from django.urls import path
-from .views import InsightCreateView, InsightHistoryView
+from .views import InsightCreateView, InsightHistoryView, InsightUpdateView
 
 urlpatterns = [
     path('', InsightCreateView.as_view()),
     path('history/', InsightHistoryView.as_view()),
+    path('<uuid:pk>/', InsightUpdateView.as_view()),
 ]
