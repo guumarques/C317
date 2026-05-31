@@ -3,9 +3,16 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 class Company(models.Model):
+    class Meta:
+        verbose_name = 'Company'
+        verbose_name_plural = 'Companies'
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return self.name
 
 class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -19,3 +26,6 @@ class User(AbstractUser):
     consent_at = models.DateTimeField(null=True, blank=True)
     login_streak = models.IntegerField(default=0)
     total_points = models.IntegerField(default=0)
+    
+    def __str__(self):
+        return self.username

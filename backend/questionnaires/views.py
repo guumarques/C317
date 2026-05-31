@@ -4,6 +4,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from .models import Questionnaires
 from .serializer import QuestionnaireSerializer
+from gamification.models import GamificationEvent
 
 class QuestionnaireCreateView(APIView):
     permission_classes = [IsAuthenticated]
@@ -12,6 +13,15 @@ class QuestionnaireCreateView(APIView):
         serializer = QuestionnaireSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(user=request.user)
+
+            request.user.total_points += 10
+            request.user.save()
+            GamificationEvent.objects.create(
+                user=request.user,
+                event_type='questionnaire_completed',
+                points=10
+            )
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

@@ -15,3 +15,6 @@ class Alerts(models.Model):
     status = models.CharField(max_length=20, default='unread')
     reason = models.CharField(max_length=255, null=True, blank=True)
     triggered_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Alerta {self.type} - {self.user}"
