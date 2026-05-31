@@ -51,7 +51,7 @@ class LoginView(TokenObtainPairView):
             # se já logou hoje, não muda nada
 
             # Gamificação — 5 pontos por login diário
-            if ultimo_login != hoje:
+            if ultimo_login != hoje and user.role == 'employee':
                 user.total_points += 5
                 GamificationEvent.objects.create(
                     user=user,

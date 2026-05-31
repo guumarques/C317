@@ -16,7 +16,7 @@ class Company(models.Model):
 
 class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    company = models.ForeignKey(Company, on_delete=models.PROTECT, related_name="users")
+    company = models.ForeignKey(Company, on_delete=models.SET_NULL, null=True, blank=True, related_name="users")
     role = models.CharField(max_length=50, choices=[
         ('employee', 'Funcionário'),
         ('psychologist', 'Psicólogo'),

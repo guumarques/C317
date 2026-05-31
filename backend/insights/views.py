@@ -9,9 +9,15 @@ class InsightListView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        insights = Insights.objects.filter(
-            questionnaire__user=request.user
-        ).order_by('-created_at')
+        if request.user.role == 'employee':
+            insights = Insights.objects.filter(
+                questionnaire__user=request.user
+            ).order_by('-created_at')
+        else:
+            insights = Insights.objects.filter(
+                questionnaire__user__company=request.user.company
+            ).order_by('-created_at')
+        
         serializer = InsightSerializer(insights, many=True)
         return Response(serializer.data)
 
@@ -25,15 +31,20 @@ class InsightListView(APIView):
 class InsightUpdateView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def patch(self, request, pk):
-        if request.user.role != 'psychologist':
-            return Response({'error': 'Acesso negado'}, status=status.HTTP_403_FORBIDDEN)
-        
+    def get(self, request, pk):
         try:
             insight = Insights.objects.get(pk=pk)
         except Insights.DoesNotExist:
             return Response({'error': 'Insight não encontrado'}, status=status.HTTP_404_NOT_FOUND)
-        
+        return Response(InsightSerializer(insight).data)
+
+    def patch(self, request, pk):
+        if request.user.role != 'psychologist':
+            return Response({'error': 'Acesso negado'}, status=status.HTTP_403_FORBIDDEN)
+        try:
+            insight = Insights.objects.get(pk=pk)
+        except Insights.DoesNotExist:
+            return Response({'error': 'Insight não encontrado'}, status=status.HTTP_404_NOT_FOUND)
         serializer = InsightSerializer(insight, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
