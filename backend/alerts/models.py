@@ -10,7 +10,7 @@ class Alerts(models.Model):
         verbose_name_plural = 'Alerts'
         
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user_id = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     type = models.CharField(max_length=50)
     status = models.CharField(max_length=20, default='unread')
     reason = models.CharField(max_length=255, null=True, blank=True)
