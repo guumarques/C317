@@ -33,8 +33,8 @@ class InsightHistoryView(APIView):
         
         serializer = InsightSerializer(insights, many=True)
         return Response(serializer.data)
-    
-class InsightUpdateView(APIView):
+
+class InsightReadView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, pk):
@@ -43,6 +43,9 @@ class InsightUpdateView(APIView):
         except Insights.DoesNotExist:
             return Response({'error': 'Insight não encontrado'}, status=status.HTTP_404_NOT_FOUND)
         return Response(InsightSerializer(insight).data)
+    
+class InsightUpdateView(APIView):
+    permission_classes = [IsAuthenticated]
 
     def patch(self, request, pk):
         if request.user.role != 'psychologist':
