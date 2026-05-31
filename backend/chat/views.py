@@ -58,3 +58,16 @@ class ChatMessageCreateView(APIView):
             'user_message': ChatMessageSerializer(user_message).data,
             'assistant_message': ChatMessageSerializer(assistant_message).data
         }, status=status.HTTP_201_CREATED)
+        
+class ChatMessageListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, session_id):
+        try:
+            session = ChatSession.objects.get(id=session_id, user=request.user)
+        except ChatSession.DoesNotExist:
+            return Response({'error': 'Sessão não encontrada'}, status=status.HTTP_404_NOT_FOUND)
+
+        messages = ChatMessage.objects.filter(session=session).order_by('sent_at')
+        serializer = ChatMessageSerializer(messages, many=True)
+        return Response(serializer.data)
