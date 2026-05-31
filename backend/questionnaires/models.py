@@ -18,4 +18,4 @@ class Questionnaires(models.Model):
     answered_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Questionário de {self.user} - {self.answered_at}"
+        return f"{self.user} - {self.answered_at}"

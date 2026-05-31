@@ -5,16 +5,22 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
+
 from .models import ChatSession, ChatMessage
 from .serializers import ChatSessionSerializer, ChatMessageSerializer
 
+from users.permissions import HasAcceptedLGPD, IsEmployee, IsEmployeeOrPsychologist
+
 class ChatSessionCreateView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, HasAcceptedLGPD, IsEmployee]
 
     def post(self, request):
         session = ChatSession.objects.create(user=request.user)
         serializer = ChatSessionSerializer(session)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+class ChatSessionHistoryView(APIView):
+    permission_classes = [IsAuthenticated, HasAcceptedLGPD, IsEmployeeOrPsychologist]
 
     def get(self, request):
         sessions = ChatSession.objects.filter(user=request.user).order_by('-started_at')
@@ -22,7 +28,7 @@ class ChatSessionCreateView(APIView):
         return Response(serializer.data)
 
 class ChatMessageCreateView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, HasAcceptedLGPD, IsEmployee]
 
     def post(self, request, session_id):
         try:

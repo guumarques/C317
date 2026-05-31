@@ -2,11 +2,14 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
+
 from .models import Questionnaires
 from .serializer import QuestionnaireSerializer
 
+from users.permissions import HasAcceptedLGPD, IsEmployee, IsEmployeeOrPsychologist
+
 class QuestionnaireCreateView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, HasAcceptedLGPD, IsEmployee]
 
     def post(self, request):
         serializer = QuestionnaireSerializer(data=request.data)
@@ -16,7 +19,7 @@ class QuestionnaireCreateView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class QuestionnaireHistoryView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, HasAcceptedLGPD, IsEmployeeOrPsychologist]
 
     def get(self, request):
         questionnaires = Questionnaires.objects.filter(user=request.user).order_by('-answered_at')

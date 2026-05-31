@@ -17,4 +17,4 @@ class Alerts(models.Model):
     triggered_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Alerta {self.type} - {self.user}"
+        return f"Alerta {self.type} - {self.user} -- {self.triggered_at}"

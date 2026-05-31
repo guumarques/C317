@@ -4,17 +4,16 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+
 from django.db.models import Avg
 from questionnaires.models import Questionnaires
 from users.models import User
+from users.permissions import HasAcceptedLGPD, IsManager
 
 class DashboardView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, HasAcceptedLGPD, IsManager]
 
     def get(self, request):
-        if request.user.role not in ['manager', 'admin']:
-            return Response({'error': 'Acesso negado'}, status=403)
-
         company = request.user.company
         users = User.objects.filter(company=company, role='employee')
         questionnaires = Questionnaires.objects.filter(user__in=users)
