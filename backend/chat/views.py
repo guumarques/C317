@@ -65,3 +65,4 @@ class ChatMessageListView(APIView):
         messages = ChatMessage.objects.filter(session=session).order_by('sent_at')
         serializer = ChatMessageSerializer(messages, many=True)
         return Response(serializer.data)
+    

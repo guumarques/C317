@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from gamification.models import GamificationEvent
 from .models import Questionnaires
 from .serializer import QuestionnaireSerializer
+from ml_service import predict_scores
 
 class QuestionnaireCreateView(APIView):
     def post(self, request):
@@ -44,3 +45,18 @@ class QuestionnaireAllView(APIView):
         ).order_by('-answered_at')
         serializer = QuestionnaireSerializer(questionnaires, many=True)
         return Response(serializer.data)
+    
+class QuestionnaireLatestView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        latest = Questionnaires.objects.filter(
+            user=request.user
+        ).order_by('-answered_at').first()
+        
+        if not latest:
+            return Response(None)
+        
+        serializer = QuestionnaireSerializer(latest)
+        return Response(serializer.data)
+    
