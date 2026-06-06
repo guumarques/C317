@@ -5,7 +5,6 @@ from rest_framework.permissions import IsAuthenticated
 from gamification.models import GamificationEvent
 from .models import Questionnaires
 from .serializer import QuestionnaireSerializer
-from ml_service import predict_scores
 
 class QuestionnaireCreateView(APIView):
     def post(self, request):
