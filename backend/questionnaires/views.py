@@ -48,3 +48,18 @@ class QuestionnaireAllView(APIView):
         ).order_by('-answered_at')
         serializer = QuestionnaireSerializer(questionnaires, many=True)
         return Response(serializer.data)
+    
+class QuestionnaireLatestView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        latest = Questionnaires.objects.filter(
+            user=request.user
+        ).order_by('-answered_at').first()
+        
+        if not latest:
+            return Response(None)
+        
+        serializer = QuestionnaireSerializer(latest)
+        return Response(serializer.data)
+    
