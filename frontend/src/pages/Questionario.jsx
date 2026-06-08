@@ -21,7 +21,7 @@ export default function Questionario() {
   const progress = ((step) / QUESTIONS.length) * 100;
 
   function selectAnswer(val) {
-    setAnswers((prev) => ({ ...prev, [current.key]: val * 20 })); 
+    setAnswers((prev) => ({ ...prev, [current.key]: (val - 1) * 25 }));
   }
 
   async function handleNext() {
@@ -93,7 +93,7 @@ export default function Questionario() {
         </div>
         <div className="flex gap-3 justify-between mb-6">
           {[1, 2, 3, 4, 5].map((val) => {
-            const score = val * 20;
+            const score = (val - 1) * 25;
             const selected = answers[current.key] === score;
             return (
               <button

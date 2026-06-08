@@ -1,12 +1,16 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError]       = useState("");
   const [loading, setLoading]   = useState(false);
-  const navigate = useNavigate();
+  const navigate  = useNavigate();
+  const location  = useLocation();
+
+  // Mensagem de sucesso vinda do registro
+  const successMsg = location.state?.success || "";
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -19,7 +23,6 @@ export default function Login() {
     setLoading(true);
 
     try {
-      // 1. Faz login e pega os tokens
       const res = await fetch("http://localhost:8000/api/users/login/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -35,7 +38,6 @@ export default function Login() {
       localStorage.setItem("token", access);
       localStorage.setItem("refresh", refresh);
 
-      // 2. Busca os dados do usuário
       const meRes = await fetch("http://localhost:8000/api/users/me/", {
         headers: { Authorization: `Bearer ${access}` },
       });
@@ -43,7 +45,6 @@ export default function Login() {
       const user = await meRes.json();
       localStorage.setItem("user", JSON.stringify(user));
 
-      // 3. Redireciona conforme lgpd_consent
       if (!user.lgpd_consent) {
         navigate("/lgpd");
       } else {
@@ -65,22 +66,22 @@ export default function Login() {
           <div className="w-14 h-14 rounded-2xl bg-green-50 flex items-center justify-center text-3xl mb-3">
             🧠
           </div>
-          <h1 className="text-xl font-semibold text-gray-900 tracking-tight">
-            MentisTech
-          </h1>
-          <p className="text-xs text-gray-400 mt-1">
-            Plataforma de saúde mental corporativa
-          </p>
+          <h1 className="text-xl font-semibold text-gray-900 tracking-tight">MentisTech</h1>
+          <p className="text-xs text-gray-400 mt-1">Plataforma de saúde mental corporativa</p>
         </div>
 
-        {/* Form */}
+        {/* Mensagem de sucesso vinda do registro */}
+        {successMsg && (
+          <p className="text-xs text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2 mb-4 text-center">
+            ✓ {successMsg}
+          </p>
+        )}
+
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 mb-5">
           <div className="flex flex-col gap-1">
             <label className="text-xs text-gray-500">Usuário</label>
             <input
-              type="text"
-              placeholder="seu.usuario"
-              value={username}
+              type="text" placeholder="seu.usuario" value={username}
               onChange={(e) => setUsername(e.target.value)}
               className="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 placeholder-gray-300 focus:outline-none focus:border-green-600 transition-colors"
             />
@@ -88,9 +89,7 @@ export default function Login() {
           <div className="flex flex-col gap-1">
             <label className="text-xs text-gray-500">Senha</label>
             <input
-              type="password"
-              placeholder="••••••••"
-              value={password}
+              type="password" placeholder="••••••••" value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 placeholder-gray-300 focus:outline-none focus:border-green-600 transition-colors"
             />
@@ -99,16 +98,19 @@ export default function Login() {
           {error && <p className="text-xs text-red-500">{error}</p>}
 
           <button
-            type="submit"
-            disabled={loading}
+            type="submit" disabled={loading}
             className="w-full bg-green-700 hover:bg-green-800 disabled:opacity-60 active:scale-[.98] text-white text-sm font-medium py-2.5 rounded-lg transition-all"
           >
             {loading ? "Entrando..." : "Entrar"}
           </button>
         </form>
 
-        <p className="text-center text-xs text-gray-400 hover:text-green-700 cursor-pointer transition-colors">
-          Esqueci minha senha
+        <p className="text-center text-xs text-gray-400">
+          Não tem conta?{" "}
+          <span onClick={() => navigate("/register")}
+            className="text-green-700 cursor-pointer hover:underline">
+            Criar conta
+          </span>
         </p>
       </div>
     </div>

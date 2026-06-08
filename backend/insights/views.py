@@ -50,3 +50,13 @@ class InsightUpdateView(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, pk):
+        if request.user.role != 'psychologist':
+            return Response({'error': 'Acesso negado'}, status=status.HTTP_403_FORBIDDEN)
+        try:
+            insight = Insights.objects.get(pk=pk)
+        except Insights.DoesNotExist:
+            return Response({'error': 'Insight não encontrado'}, status=status.HTTP_404_NOT_FOUND)
+        insight.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

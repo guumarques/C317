@@ -2,25 +2,18 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const NAV = [
-  { icon: "🏠", label: "Início" },
-  { icon: "📝", label: "Questionário" },
-  { icon: "💬", label: "Chat de apoio" },
-  { icon: "💡", label: "Insights" },
-  { icon: "🏆", label: "Pontuação" },
-];
-
-const POINTS_HISTORY = [
-  { action: "Questionário respondido", pts: "+50 pts" },
-  { action: "Login consecutivo",       pts: "+20 pts" },
-  { action: "Sessão de chat",          pts: "+10 pts" },
-  { action: "Insight visualizado",     pts: "+5 pts"  },
+  { icon: "🏠", label: "Início", path: "/home" },
+  { icon: "📝", label: "Questionário", path: "/questionario" },
+  { icon: "📋", label: "Histórico", path: "/historico" },
+  { icon: "💬", label: "Chat de apoio", path: "/chat" },
+  { icon: "💡", label: "Insights", path: "/insights" },
 ];
 
 const METRICS = [
-  { label: "Estresse",  key: "stress_score",     color: "#EF9F27", badge: "warn" },
-  { label: "Ansiedade", key: "anxiety_score",     color: "#1D9E75", badge: "ok"   },
-  { label: "Burnout",   key: "burnout_score",     color: "#1D9E75", badge: "ok"   },
-  { label: "Depressão", key: "depression_score",  color: "#1D9E75", badge: "ok"   },
+  { label: "Estresse", key: "stress_score" },
+  { label: "Ansiedade", key: "anxiety_score" },
+  { label: "Burnout", key: "burnout_score" },
+  { label: "Depressão", key: "depression_score" },
 ];
 
 function badgeClass(type) {
@@ -41,28 +34,39 @@ function badgeType(val) {
   return val >= 40 ? "warn" : "ok";
 }
 
-export default function Home() {
-  const [user, setUser]         = useState(null);
+export default function HomeFuncionario() {
+  const [user, setUser] = useState(null);
   const [questionnaire, setQuestionnaire] = useState(null);
-  const [activeNav, setActiveNav] = useState(0);
+  const [gamification, setGamification] = useState(null);
   const navigate = useNavigate();
+  const [totalPoints, setTotalPoints] = useState(0);
 
   useEffect(() => {
     const stored = localStorage.getItem("user");
-    if (!stored) { navigate("/"); return; }
-    const u = JSON.parse(stored);
-    setUser(u);
-
-    // Busca último questionário do usuário
-    const token = localStorage.getItem("token");
-    if (token) {
-      fetch("http://localhost:8000/api/questionnaires/latest/", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-        .then((r) => r.ok ? r.json() : null)
-        .then((data) => { if (data) setQuestionnaire(data); })
-        .catch(() => {});
+    if (!stored) {
+      navigate("/");
+      return;
     }
+    setUser(JSON.parse(stored));
+
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    fetch("http://localhost:8000/api/questionnaires/latest/", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (d) setQuestionnaire(d);
+      })
+      .catch(() => {});
+
+    fetch("http://localhost:8000/api/gamification/", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then(d => { if (d) { setGamification(d); setTotalPoints(d.total_points ?? 0); } })
+      .catch(() => {});
   }, [navigate]);
 
   function handleLogout() {
@@ -75,32 +79,28 @@ export default function Home() {
   if (!user) return null;
 
   const firstName = user.first_name || user.username || "Usuário";
-  const streak    = user.login_streak   ?? 0;
-  const points    = user.total_points   ?? 0;
+  const streak = user.login_streak ?? 0;
   const maxPoints = 1500;
-  const progress  = Math.min((points / maxPoints) * 100, 100);
-
+  const progress = Math.min((totalPoints / maxPoints) * 100, 100);
   const today = new Date().toLocaleDateString("pt-BR", {
-    weekday: "long", day: "numeric", month: "long",
+    weekday: "long",
+    day: "numeric",
+    month: "long",
   });
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-
-      {/* Topbar */}
       <div className="bg-green-700 h-12 flex items-center px-5 gap-3 flex-shrink-0">
-        <span className="text-white font-medium text-sm flex-1">🧠 MentisTech</span>
+        <span className="text-white font-medium text-sm flex-1">
+          🧠 MentisTech
+        </span>
         <div className="flex items-center gap-2">
           <span className="text-[10px] bg-white/15 text-white px-2 py-0.5 rounded-full">
-            {user.role === "employee"     ? "Funcionário"
-           : user.role === "psychologist" ? "Psicólogo"
-           : user.role === "manager"      ? "Gestor"
-           : "Usuário"}
+            Funcionário
           </span>
-          <span className="text-white text-xs">{user.first_name} {user.last_name}</span>
-          <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-white text-[11px] font-medium">
-            {(user.first_name?.[0] ?? "")}{(user.last_name?.[0] ?? "")}
-          </div>
+          <span className="text-white text-xs">
+            {user.first_name} {user.last_name}
+          </span>
           <button
             onClick={handleLogout}
             className="text-[11px] border border-white/30 text-white px-2.5 py-1 rounded-md hover:bg-white/10 transition-colors"
@@ -111,19 +111,15 @@ export default function Home() {
       </div>
 
       <div className="flex flex-1 min-h-0">
-
-        {/* Sidebar */}
         <div className="w-44 bg-white border-r border-gray-100 flex-shrink-0 p-2 flex flex-col gap-0.5">
-          <p className="text-[10px] text-gray-400 uppercase tracking-wider px-2 pt-2 pb-1 font-medium">Menu</p>
+          <p className="text-[10px] text-gray-400 uppercase tracking-wider px-2 pt-2 pb-1 font-medium">
+            Menu
+          </p>
           {NAV.map((item, i) => (
             <button
               key={i}
-              onClick={() => setActiveNav(i)}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs w-full text-left transition-colors ${
-                activeNav === i
-                  ? "bg-green-50 text-green-700 font-medium"
-                  : "text-gray-600 hover:bg-gray-50"
-              }`}
+              onClick={() => navigate(item.path)}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs w-full text-left text-gray-600 hover:bg-gray-50 transition-colors"
             >
               <span>{item.icon}</span>
               {item.label}
@@ -131,18 +127,15 @@ export default function Home() {
           ))}
         </div>
 
-        {/* Main */}
         <div className="flex-1 overflow-y-auto p-6">
-
           <h1 className="text-lg font-semibold text-gray-900 mb-0.5">
             Olá, {firstName} 👋
           </h1>
           <p className="text-xs text-gray-400 mb-5 capitalize">{today}</p>
 
-          {/* Métricas */}
           <div className="grid grid-cols-4 gap-3 mb-4">
             {METRICS.map((m) => {
-              const val  = questionnaire?.[m.key];
+              const val = questionnaire?.[m.key];
               const type = badgeType(val);
               return (
                 <div key={m.label} className="bg-gray-50 rounded-xl p-4">
@@ -162,25 +155,45 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-
-            {/* Ações rápidas */}
             <div className="bg-gray-50 border border-gray-100 rounded-xl p-4">
-              <p className="text-sm font-medium text-gray-800 mb-3">Ações rápidas</p>
+              <p className="text-sm font-medium text-gray-800 mb-3">
+                Ações rápidas
+              </p>
               {[
-                { icon: "📝", title: "Questionário semanal",   sub: "Disponível agora" },
-                { icon: "💬", title: "Chat de acolhimento",     sub: "Apoio emocional com IA" },
-                { icon: "💡", title: "Novo insight disponível", sub: "Validado pelo psicólogo" },
+                {
+                  icon: "📝",
+                  title: "Questionário semanal",
+                  sub: "Disponível agora",
+                  path: "/questionario",
+                },
+                {
+                  icon: "💬",
+                  title: "Chat de acolhimento",
+                  sub: "Apoio emocional com IA",
+                  path: "/chat",
+                },
+                {
+                  icon: "💡",
+                  title: "Meus insights",
+                  sub: "Ver recomendações",
+                  path: "/insights",
+                },
               ].map((a, i) => (
                 <div
                   key={i}
+                  onClick={() => navigate(a.path)}
                   className="flex items-center gap-3 px-3 py-2.5 bg-white border border-gray-100 hover:border-green-500 rounded-xl mb-2 last:mb-0 cursor-pointer transition-colors"
                 >
                   <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center text-base flex-shrink-0">
                     {a.icon}
                   </div>
                   <div className="flex-1">
-                    <div className="text-xs font-medium text-gray-800">{a.title}</div>
-                    <div className="text-[11px] text-gray-400 mt-0.5">{a.sub}</div>
+                    <div className="text-xs font-medium text-gray-800">
+                      {a.title}
+                    </div>
+                    <div className="text-[11px] text-gray-400 mt-0.5">
+                      {a.sub}
+                    </div>
                   </div>
                   <span className="text-gray-300 text-sm">›</span>
                 </div>
@@ -188,20 +201,29 @@ export default function Home() {
             </div>
 
             <div className="flex flex-col gap-4">
-
-              {/* Streak */}
               <div className="bg-gray-50 border border-gray-100 rounded-xl p-4">
-                <p className="text-sm font-medium text-gray-800 mb-3">Sequência de acessos</p>
+                <p className="text-sm font-medium text-gray-800 mb-3">
+                  Minha pontuação 🏆
+                </p>
                 <div className="flex items-center gap-4 bg-white border border-gray-100 rounded-xl px-4 py-3 mb-3">
-                  <span className="text-3xl font-medium text-green-700 leading-none">{streak}</span>
+                  <span className="text-3xl font-medium text-green-700 leading-none">
+                    {totalPoints}
+                  </span>
                   <div>
-                    <div className="text-xs font-medium text-gray-800">dias consecutivos 🔥</div>
-                    <div className="text-[11px] text-gray-400 mt-0.5">Continue para desbloquear "Constância"</div>
+                    <div className="text-xs font-medium text-gray-800">
+                      pontos totais
+                    </div>
+                    <div className="text-[11px] text-gray-400 mt-0.5">
+                      Login diário + questionários respondidos
+                    </div>
                   </div>
                 </div>
                 <div className="flex justify-between text-[11px] text-gray-400 mb-1">
                   <span>Próximo nível</span>
-                  <span>{points.toLocaleString("pt-BR")} / {maxPoints.toLocaleString("pt-BR")} pts</span>
+                  <span>
+                    {totalPoints.toLocaleString("pt-BR")} /{" "}
+                    {maxPoints.toLocaleString("pt-BR")} pts
+                  </span>
                 </div>
                 <div className="bg-gray-200 rounded-full h-1.5 overflow-hidden">
                   <div
@@ -209,25 +231,33 @@ export default function Home() {
                     style={{ width: `${progress}%` }}
                   />
                 </div>
-                <div className="text-[11px] text-gray-400 mt-1.5">
-                  Nível 4 — Explorador · faltam {(maxPoints - points).toLocaleString("pt-BR")} pts
-                </div>
               </div>
 
-              {/* Histórico de pontos */}
               <div className="bg-gray-50 border border-gray-100 rounded-xl p-4">
-                <p className="text-sm font-medium text-gray-800 mb-3">Histórico de pontos</p>
-                {POINTS_HISTORY.map((p, i) => (
+                <p className="text-sm font-medium text-gray-800 mb-3">
+                  Histórico de pontos
+                </p>
+                {(gamification?.events ?? []).slice(0, 4).map((e, i) => (
                   <div
                     key={i}
                     className="flex items-center justify-between py-2 border-b border-gray-100 last:border-none"
                   >
-                    <span className="text-xs text-gray-700">{p.action}</span>
-                    <span className="text-xs font-medium text-green-700">{p.pts}</span>
+                    <span className="text-xs text-gray-700">
+                      {e.event_type === "daily_login"
+                        ? "Login diário"
+                        : "Questionário respondido"}
+                    </span>
+                    <span className="text-xs font-medium text-green-700">
+                      +{e.totalPoints} pts
+                    </span>
                   </div>
                 ))}
+                {(gamification?.events ?? []).length === 0 && (
+                  <p className="text-xs text-gray-400 text-center py-2">
+                    Nenhum ponto ainda.
+                  </p>
+                )}
               </div>
-
             </div>
           </div>
         </div>

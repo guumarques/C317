@@ -16,10 +16,12 @@ export default function Insights() {
   }, []);
 
   function statusBadge(status) {
-    if (status === "validated")
-      return <span className="text-[10px] bg-green-100 text-green-800 font-medium px-2 py-0.5 rounded-full">Psicólogo validou</span>;
-    return <span className="text-[10px] bg-blue-100 text-blue-800 font-medium px-2 py-0.5 rounded-full">Gerado por IA</span>;
-  }
+  if (status === "validated")
+    return <span className="...">Validado pelo psicólogo</span>;
+  if (status === "rejected")
+    return <span className="...">Não aplicável</span>;
+  return <span className="...">Pendente</span>;
+}
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -30,7 +32,7 @@ export default function Insights() {
 
       <div className="max-w-2xl mx-auto px-4 py-8">
         <h1 className="text-lg font-semibold text-gray-900 mb-1">Seus insights</h1>
-        <p className="text-xs text-gray-400 mb-6">Gerados pela IA e revisados pelo psicólogo</p>
+        <p className="text-xs text-gray-400 mb-6">Gerados pelo psicólogo</p>
 
         {loading && (
           <div className="text-sm text-gray-400 text-center py-12">Carregando...</div>

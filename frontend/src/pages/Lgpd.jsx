@@ -19,7 +19,7 @@ export default function Lgpd() {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await fetch("http://localhost:8000/auth/lgpd-consent", {
+      const res = await fetch("http://localhost:8000/auth/accept-lgpd", {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
