@@ -1,9 +1,18 @@
 from rest_framework import serializers
 from .models import Questionnaires
 
+
+class QuestionnaireUserSerializer(serializers.Serializer):
+    id         = serializers.UUIDField()
+    first_name = serializers.CharField()
+    last_name  = serializers.CharField()
+
+
 class QuestionnaireSerializer(serializers.ModelSerializer):
+    user = QuestionnaireUserSerializer(read_only=True)
+
     class Meta:
-        model = Questionnaires
+        model  = Questionnaires
         fields = [
             'id',
             'user',

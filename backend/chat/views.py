@@ -7,6 +7,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from .models import ChatSession, ChatMessage
 from .serializers import ChatSessionSerializer, ChatMessageSerializer
+from django.db.models import Count
 
 class ChatSessionCreateView(APIView):
     permission_classes = [IsAuthenticated]
@@ -15,9 +16,18 @@ class ChatSessionCreateView(APIView):
         session = ChatSession.objects.create(user=request.user)
         serializer = ChatSessionSerializer(session)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-
+    
     def get(self, request):
-        sessions = ChatSession.objects.filter(user=request.user).order_by('-started_at')
+        if request.user.role == 'psychologist':
+            sessions = ChatSession.objects.filter(
+                user__company=request.user.company,
+                user__role='employee'
+            ).annotate(msg_count=Count('messages')).filter(msg_count__gt=0).order_by('-started_at').select_related('user')
+        else:
+            sessions = ChatSession.objects.filter(
+                user=request.user
+            ).annotate(msg_count=Count('messages')).filter(msg_count__gt=0).order_by('-started_at')
+
         serializer = ChatSessionSerializer(sessions, many=True)
         return Response(serializer.data)
 
@@ -58,11 +68,18 @@ class ChatMessageListView(APIView):
 
     def get(self, request, session_id):
         try:
-            session = ChatSession.objects.get(id=session_id, user=request.user)
+            if request.user.role == 'psychologist':
+                # Psicólogo pode ver sessões dos funcionários da sua empresa
+                session = ChatSession.objects.get(
+                    id=session_id,
+                    user__company=request.user.company,
+                    user__role='employee'
+                )
+            else:
+                session = ChatSession.objects.get(id=session_id, user=request.user)
         except ChatSession.DoesNotExist:
             return Response({'error': 'Sessão não encontrada'}, status=status.HTTP_404_NOT_FOUND)
 
         messages = ChatMessage.objects.filter(session=session).order_by('sent_at')
         serializer = ChatMessageSerializer(messages, many=True)
         return Response(serializer.data)
-    

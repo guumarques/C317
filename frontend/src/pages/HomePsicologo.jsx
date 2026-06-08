@@ -38,7 +38,6 @@ export default function HomePsicologo() {
             { icon: "🏠", label: "Início",         path: "/home/psicologo" },
             { icon: "📋", label: "Questionários",  path: "/psicologo/questionarios" },
             { icon: "💡", label: "Insights",        path: "/psicologo/insights" },
-            { icon: "💬", label: "Chat de apoio",  path: "/chat" },
           ].map((item, i) => (
             <button key={i} onClick={() => navigate(item.path)}
               className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs w-full text-left text-gray-600 hover:bg-gray-50 transition-colors">
@@ -55,7 +54,7 @@ export default function HomePsicologo() {
             {[
               { icon: "📋", title: "Questionários dos funcionários", sub: "Ver todos os questionários respondidos", path: "/psicologo/questionarios" },
               { icon: "💡", title: "Gerenciar insights",             sub: "Criar e validar insights",               path: "/psicologo/insights" },
-              { icon: "💬", title: "Chat de apoio",                  sub: "Usar a IA como ferramenta de apoio",     path: "/chat" },
+              { icon: "💬", title: "Sessões", label: "Atendimentos", path: "/psicologo/chats" },
             ].map((card, i) => (
               <div key={i} onClick={() => navigate(card.path)}
                 className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm cursor-pointer hover:border-green-500 transition-colors">
