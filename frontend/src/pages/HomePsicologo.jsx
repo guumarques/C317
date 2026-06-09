@@ -127,12 +127,6 @@ export default function HomePsicologo() {
           </h1>
           <p className="text-xs text-gray-400 mb-6">Painel do psicólogo</p>
           <div className="grid grid-cols-2 gap-4">
-            <div className="mt-6">
-              <h2 className="text-sm font-semibold text-gray-800 mb-3">
-                Saúde mental da equipe
-              </h2>
-              <GraficoPsicologo />
-            </div>
             {CARDS.map((card, i) => (
               <div
                 key={i}
@@ -146,6 +140,12 @@ export default function HomePsicologo() {
                 <div className="text-xs text-gray-400 mt-1">{card.sub}</div>
               </div>
             ))}
+            <div className="mt-6">
+              <h2 className="text-sm font-semibold text-gray-800 mb-3">
+                Saúde mental da equipe
+              </h2>
+              <GraficoPsicologo />
+            </div>
           </div>
         </div>
       </div>
