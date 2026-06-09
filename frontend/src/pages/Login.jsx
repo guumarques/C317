@@ -78,6 +78,7 @@ export default function Login() {
           <div className="flex flex-col gap-1">
             <label className="text-xs text-gray-500">Usuário</label>
             <input
+              data-cy="login-username"
               type="text"
               placeholder="seu.usuario"
               value={username}
@@ -88,6 +89,7 @@ export default function Login() {
           <div className="flex flex-col gap-1">
             <label className="text-xs text-gray-500">Senha</label>
             <input
+              data-cy="login-password"
               type="password"
               placeholder="••••••••"
               value={password}
@@ -99,6 +101,7 @@ export default function Login() {
           {error && <p className="text-xs text-red-500">{error}</p>}
 
           <button
+            data-cy="login-button"
             type="submit"
             disabled={loading}
             className="w-full bg-green-700 hover:bg-green-800 disabled:opacity-60 active:scale-[.98] text-white text-sm font-medium py-2.5 rounded-lg transition-all"

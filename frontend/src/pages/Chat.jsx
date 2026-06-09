@@ -4,27 +4,33 @@ import { createChatSession, sendChatMessage } from "../api";
 
 export default function Chat() {
   const [sessionId, setSessionId] = useState(null);
-  const [messages, setMessages]   = useState([]);
-  const [input, setInput]         = useState("");
-  const [loading, setLoading]     = useState(false);
-  const [starting, setStarting]   = useState(true);
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [starting, setStarting] = useState(true);
   const bottomRef = useRef(null);
-  const navigate  = useNavigate();
+  const navigate = useNavigate();
 
   useEffect(() => {
     createChatSession()
       .then((session) => {
         setSessionId(session.id);
-        setMessages([{
-          role: "assistant",
-          content: "Olá! Como você está se sentindo hoje? Estou aqui para ouvir e apoiar. 😊",
-        }]);
+        setMessages([
+          {
+            role: "assistant",
+            content:
+              "Olá! Como você está se sentindo hoje? Estou aqui para ouvir e apoiar. 😊",
+          },
+        ]);
       })
       .catch(() => {
-        setMessages([{
-          role: "assistant",
-          content: "Não foi possível iniciar a sessão. Tente novamente mais tarde.",
-        }]);
+        setMessages([
+          {
+            role: "assistant",
+            content:
+              "Não foi possível iniciar a sessão. Tente novamente mais tarde.",
+          },
+        ]);
       })
       .finally(() => setStarting(false));
   }, []);
@@ -43,15 +49,21 @@ export default function Chat() {
 
     try {
       const res = await sendChatMessage(sessionId, userMsg);
-      setMessages((prev) => [...prev, {
-        role: "assistant",
-        content: res.assistant_message.content,
-      }]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: res.assistant_message.content,
+        },
+      ]);
     } catch {
-      setMessages((prev) => [...prev, {
-        role: "assistant",
-        content: "Desculpe, ocorreu um erro. Tente novamente.",
-      }]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: "Desculpe, ocorreu um erro. Tente novamente.",
+        },
+      ]);
     } finally {
       setLoading(false);
     }
@@ -67,18 +79,32 @@ export default function Chat() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <div className="bg-green-700 h-12 flex items-center px-5 gap-3 flex-shrink-0">
-        <button onClick={() => navigate("/home")} className="text-white/70 text-xs hover:text-white">← Voltar</button>
-        <span className="text-white font-medium text-sm flex-1">💬 Chat de acolhimento</span>
+        <button
+          onClick={() => navigate("/home")}
+          className="text-white/70 text-xs hover:text-white"
+        >
+          ← Voltar
+        </button>
+        <span className="text-white font-medium text-sm flex-1">
+          💬 Chat de acolhimento
+        </span>
       </div>
 
       <div className="flex flex-col flex-1 max-w-2xl w-full mx-auto px-4 py-4">
         <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5 mb-4 text-xs text-amber-700">
-          ⚠️ Este chat é de apoio emocional e não substitui atendimento psicológico profissional.
+          ⚠️ Este chat é de apoio emocional e não substitui atendimento
+          psicológico profissional.
         </div>
 
-        <div className="flex-1 bg-white border border-gray-100 rounded-xl p-4 overflow-y-auto flex flex-col gap-3 mb-4" style={{ minHeight: 0, maxHeight: "calc(100vh - 220px)" }}>
+        <div
+          data-cy="chat-messages"
+          className="flex-1 bg-white border border-gray-100 rounded-xl p-4 overflow-y-auto flex flex-col gap-3 mb-4"
+          style={{ minHeight: 0, maxHeight: "calc(100vh - 220px)" }}
+        >
           {starting && (
-            <div className="text-xs text-gray-400 text-center">Iniciando sessão...</div>
+            <div className="text-xs text-gray-400 text-center">
+              Iniciando sessão...
+            </div>
           )}
           {messages.map((msg, i) => (
             <div
@@ -108,6 +134,7 @@ export default function Chat() {
 
         <div className="flex gap-2">
           <input
+            data-cy="chat-input"
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -117,6 +144,7 @@ export default function Chat() {
             className="flex-1 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-green-600 transition-colors disabled:opacity-50"
           />
           <button
+            data-cy="chat-send-button"
             onClick={handleSend}
             disabled={!input.trim() || loading || starting}
             className="bg-green-700 hover:bg-green-800 disabled:opacity-50 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-colors"
