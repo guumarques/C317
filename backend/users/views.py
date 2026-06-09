@@ -12,6 +12,7 @@ from .serializer import RegisterSerializer, UserSerializer
 from .permissions import HasAcceptedLGPD
 from .models import Company
 from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth.models import update_last_login
 
 User = get_user_model()
 
@@ -53,6 +54,7 @@ class LoginView(TokenObtainPairView):
 
             # Gamificação — 5 pontos por login diário
             if ultimo_login != hoje and user.role == 'employee':
+                update_last_login(None, user)
                 user.total_points += 5
                 GamificationEvent.objects.create(
                     user=user,
