@@ -14,7 +14,7 @@ class ConsultationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model  = Consultation
-        fields = ['id', 'employee', 'employee_id', 'date', 'notes', 'created_at']
+        fields = ['id', 'employee', 'employee_id', 'date', 'time', 'notes', 'created_at']
         read_only_fields = ['id', 'created_at']
 
     def create(self, validated_data):

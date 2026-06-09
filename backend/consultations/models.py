@@ -9,6 +9,7 @@ class Consultation(models.Model):
     date         = models.DateField()
     notes        = models.TextField(blank=True, default="")
     created_at   = models.DateTimeField(auto_now_add=True)
+    time = models.TimeField(null=True, blank=True)
 
     class Meta:
         ordering = ["-date"]
