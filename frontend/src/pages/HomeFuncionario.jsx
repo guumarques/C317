@@ -6,6 +6,7 @@ import {
   MessageSquare,
   Lightbulb,
   Trophy,
+  Calendar,
 } from "lucide-react";
 import GraficoFuncionario from "../components/GraficoFuncionario";
 
@@ -22,6 +23,7 @@ const NAV = [
     path: "/chat",
   },
   { icon: <Lightbulb size={15} />, label: "Insights", path: "/insights" },
+  { icon: <Calendar size={15} />, label: "Consultas", path: "/consultas" },
 ];
 
 const METRICS = [
@@ -197,6 +199,12 @@ export default function HomeFuncionario() {
                   title: "Meus insights",
                   sub: "Ver recomendações",
                   path: "/insights",
+                },
+                {
+                  icon: <Calendar size={16} />,
+                  title: "Minhas consultas",
+                  sub: "Ver agendamentos com o psicólogo",
+                  path: "/consultas",
                 },
               ].map((a, i) => (
                 <div

@@ -12,11 +12,15 @@ class ConsultationListCreateView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        if request.user.role != 'psychologist':
-            return Response({'error': 'Acesso negado'}, status=403)
-        consultations = Consultation.objects.filter(
-            psychologist=request.user
-        ).select_related('employee')
+        if request.user.role == 'psychologist':
+            consultations = Consultation.objects.filter(
+                psychologist=request.user
+            ).select_related('employee')
+        else:
+            consultations = Consultation.objects.filter(
+                employee=request.user
+            ).select_related('psychologist')
+        
         serializer = ConsultationSerializer(consultations, many=True)
         return Response(serializer.data)
 
