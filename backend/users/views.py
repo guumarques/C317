@@ -11,6 +11,7 @@ from gamification.models import GamificationEvent
 from .serializer import RegisterSerializer, UserSerializer
 from .permissions import HasAcceptedLGPD
 from .models import Company
+from rest_framework.permissions import IsAuthenticated
 
 User = get_user_model()
 
@@ -127,3 +128,32 @@ class AcceptLGPDView(APIView):
             },
             status=status.HTTP_200_OK
         )
+        
+class EmployeeListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        if request.user.role != 'psychologist':
+            return Response({'error': 'Acesso negado'}, status=403)
+        employees = User.objects.filter(
+            company=request.user.company,
+            role='employee'
+        ).values('id', 'first_name', 'last_name', 'username')
+        return Response(list(employees))
+    
+class PsychologistView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            psychologist = User.objects.get(
+                company=request.user.company,
+                role='psychologist'
+            )
+            return Response({
+                'id': str(psychologist.id),
+                'first_name': psychologist.first_name,
+                'last_name': psychologist.last_name,
+            })
+        except User.DoesNotExist:
+            return Response({'error': 'Nenhum psicólogo encontrado'}, status=404)

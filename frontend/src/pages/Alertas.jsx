@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { AlertTriangle, CheckCircle } from "lucide-react";
 
 export default function Alertas() {
   const [alertas, setAlertas] = useState([]);
@@ -21,8 +22,8 @@ export default function Alertas() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="bg-green-700 h-12 flex items-center px-5 gap-3">
-        <button onClick={() => navigate("/home")} className="text-white/70 text-xs hover:text-white">← Voltar</button>
-        <span className="text-white font-medium text-sm flex-1">🚨 Alertas de funcionários</span>
+        <button onClick={() => navigate("/home/gestor")} className="text-white/70 text-xs hover:text-white">← Voltar</button>
+        <span className="text-white font-medium text-sm flex-1">Alertas de funcionários</span>
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-8">
@@ -34,7 +35,7 @@ export default function Alertas() {
 
         {!loading && !error && alertas.length === 0 && (
           <div className="bg-green-50 border border-green-100 rounded-xl px-4 py-6 text-center">
-            <div className="text-2xl mb-2">✅</div>
+            <CheckCircle size={28} className="text-green-600 mx-auto mb-2" />
             <div className="text-sm font-medium text-green-700">Nenhum alerta no momento</div>
             <div className="text-xs text-green-600 mt-1">Todos os funcionários estão dentro dos níveis normais</div>
           </div>
@@ -43,7 +44,7 @@ export default function Alertas() {
         {alertas.map((a, i) => (
           <div key={i} className="bg-white border border-red-100 rounded-xl p-4 mb-3 shadow-sm">
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-lg">⚠️</span>
+              <AlertTriangle size={16} className="text-red-500 flex-shrink-0" />
               <span className="text-sm font-semibold text-gray-800 capitalize">{a.usuario}</span>
               <span className="ml-auto text-[10px] bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-medium capitalize">{a.tipo}</span>
             </div>

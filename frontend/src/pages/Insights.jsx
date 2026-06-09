@@ -36,7 +36,7 @@ export default function Insights() {
     <div className="min-h-screen bg-gray-50">
       <div className="bg-green-700 h-12 flex items-center px-5 gap-3">
         <button onClick={() => navigate("/home/funcionario")} className="text-white/70 text-xs hover:text-white">← Voltar</button>
-        <span className="text-white font-medium text-sm flex-1">💡 Meus insights</span>
+        <span className="text-white font-medium text-sm flex-1">Meus insights</span>
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-8">

@@ -21,6 +21,9 @@ export default function PsicologoInsights() {
   const [editContent, setEditContent]   = useState("");
   const [editSaving, setEditSaving]     = useState(false);
   const [deletingId, setDeletingId]     = useState(null);
+  const [employees, setEmployees]               = useState([]);
+  const [employeeQuestionarios, setEmployeeQuestionarios] = useState([]);
+  const [selectedEmployee, setSelectedEmployee] = useState("");
 
   const navigate = useNavigate();
   const token    = localStorage.getItem("token");
@@ -38,7 +41,23 @@ export default function PsicologoInsights() {
       .finally(() => setLoading(false));
   }
 
-  useEffect(() => { loadInsights(); }, []);
+  useEffect(() => {
+    loadInsights();
+    fetch("http://localhost:8000/api/users/employees/", { headers: authH() })
+      .then(r => r.ok ? r.json() : [])
+      .then(setEmployees)
+      .catch(() => {});
+  }, []);
+
+  function handleSelectEmployee(employeeId) {
+    setSelectedEmployee(employeeId);
+    setForm(f => ({ ...f, questionnaire: "" }));
+    if (!employeeId) { setEmployeeQuestionarios([]); return; }
+    fetch("http://localhost:8000/api/questionnaires/all/", { headers: authH() })
+      .then(r => r.ok ? r.json() : [])
+      .then(data => setEmployeeQuestionarios(data.filter(q => (q.user?.id ?? q.user) === employeeId)))
+      .catch(() => {});
+  }
 
   function handleCreate(e) {
     e.preventDefault();
@@ -49,7 +68,7 @@ export default function PsicologoInsights() {
       body: JSON.stringify(form),
     })
       .then(r => r.ok ? r.json() : Promise.reject("Erro ao criar insight"))
-      .then(() => { setCreating(false); setForm(EMPTY_FORM); loadInsights(); })
+      .then(() => { setCreating(false); setForm(EMPTY_FORM); setSelectedEmployee(""); setEmployeeQuestionarios([]); loadInsights(); })
       .catch(() => alert("Erro ao criar insight"))
       .finally(() => setSaving(false));
   }
@@ -107,7 +126,7 @@ export default function PsicologoInsights() {
     <div className="min-h-screen bg-gray-50">
       <div className="bg-green-700 h-12 flex items-center px-5 gap-3">
         <button onClick={() => navigate("/home/psicologo")} className="text-white/70 text-xs hover:text-white">← Voltar</button>
-        <span className="text-white font-medium text-sm flex-1">💡 Gerenciar insights</span>
+        <span className="text-white font-medium text-sm flex-1">Gerenciar insights</span>
         <button
           onClick={() => { setCreating(true); setEditingId(null); setDeletingId(null); }}
           className="text-[11px] border border-white/30 text-white px-2.5 py-1 rounded-md hover:bg-white/10"
@@ -118,21 +137,51 @@ export default function PsicologoInsights() {
 
       <div className="max-w-2xl mx-auto px-4 py-8">
         <h1 className="text-lg font-semibold text-gray-900 mb-1">Insights da empresa</h1>
-        <p className="text-xs text-gray-400 mb-6">Crie, edite, valide e exclua insights para os funcionários</p>
+        <p className="text-xs text-gray-400 mb-6">Crie, edite e exclua insights para os funcionários</p>
 
         {creating && (
           <form onSubmit={handleCreate} className="bg-white border border-green-200 rounded-xl p-4 mb-6 shadow-sm">
             <h2 className="text-sm font-semibold text-gray-800 mb-3">Novo insight</h2>
+
             <div className="mb-3">
-              <label className="text-xs text-gray-500 mb-1 block">ID do questionário</label>
-              <input
-                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-green-500"
-                placeholder="UUID do questionário"
+              <label className="text-xs text-gray-500 mb-1 block">Funcionário</label>
+              <select
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs bg-white focus:outline-none focus:border-green-500"
+                value={selectedEmployee}
+                onChange={e => handleSelectEmployee(e.target.value)}
+                required
+              >
+                <option value="">Selecione um funcionário</option>
+                {employees.map(emp => (
+                  <option key={emp.id} value={emp.id}>
+                    {emp.first_name} {emp.last_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="mb-3">
+              <label className="text-xs text-gray-500 mb-1 block">Questionário</label>
+              <select
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs bg-white focus:outline-none focus:border-green-500 disabled:opacity-50"
                 value={form.questionnaire}
                 onChange={e => setForm(f => ({ ...f, questionnaire: e.target.value }))}
+                disabled={!selectedEmployee}
                 required
-              />
+              >
+                <option value="">Selecione um questionário</option>
+                {employeeQuestionarios.map(q => (
+                  <option key={q.id} value={q.id}>
+                    {new Date(q.answered_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" })}
+                    {" · "}Est: {q.stress_score} · Ans: {q.anxiety_score} · Burn: {q.burnout_score} · Dep: {q.depression_score}
+                  </option>
+                ))}
+                {selectedEmployee && employeeQuestionarios.length === 0 && (
+                  <option disabled>Nenhum questionário encontrado</option>
+                )}
+              </select>
             </div>
+
             <div className="mb-4">
               <label className="text-xs text-gray-500 mb-1 block">Conteúdo</label>
               <textarea
@@ -143,12 +192,13 @@ export default function PsicologoInsights() {
                 required
               />
             </div>
+
             <div className="flex gap-2">
               <button type="submit" disabled={saving}
                 className="bg-green-600 text-white text-xs px-4 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors">
                 {saving ? "Salvando..." : "Salvar"}
               </button>
-              <button type="button" onClick={() => { setCreating(false); setForm(EMPTY_FORM); }}
+              <button type="button" onClick={() => { setCreating(false); setForm(EMPTY_FORM); setSelectedEmployee(""); setEmployeeQuestionarios([]); }}
                 className="border border-gray-200 text-gray-600 text-xs px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
                 Cancelar
               </button>
@@ -164,8 +214,6 @@ export default function PsicologoInsights() {
 
         {insights.map((ins) => (
           <div key={ins.id} className="bg-white border border-gray-100 rounded-xl p-4 mb-3 shadow-sm">
-
-            {/* Cabeçalho */}
             <div className="flex items-center justify-between gap-2 mb-2">
               <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${STATUS_COLORS[ins.status]}`}>
                 {STATUS_LABELS[ins.status]}
@@ -198,7 +246,6 @@ export default function PsicologoInsights() {
               </div>
             </div>
 
-            {/* Conteúdo ou textarea de edição */}
             {editingId === ins.id ? (
               <div className="mb-3">
                 <textarea
@@ -222,12 +269,20 @@ export default function PsicologoInsights() {
               <p className="text-xs text-gray-700 leading-relaxed mb-2">{ins.content}</p>
             )}
 
-            {/* Metadata */}
             <div className="text-[11px] text-gray-400 mb-3">
               Funcionário: <span className="text-gray-600">{ins.user ?? "—"}</span>
               {" · "}
-              {new Date(ins.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" })}
+              {new Date(ins.created_at).toLocaleDateString("pt-BR", {
+                day: "2-digit", month: "short", year: "numeric",
+              })}
             </div>
+
+            {editingId !== ins.id && ins.status !== "validated" && (
+              <button onClick={() => handlePatch(ins.id, { status: "validated" })}
+                className="text-[11px] text-white bg-blue-500 hover:bg-blue-600 px-3 py-1.5 rounded-lg transition-colors">
+                Reabrir como validado
+              </button>
+            )}
           </div>
         ))}
       </div>

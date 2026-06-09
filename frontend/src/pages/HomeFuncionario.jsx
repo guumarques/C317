@@ -1,12 +1,27 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  ClipboardList,
+  History,
+  MessageSquare,
+  Lightbulb,
+  Trophy,
+} from "lucide-react";
+import GraficoFuncionario from "../components/GraficoFuncionario";
 
 const NAV = [
-  { icon: "🏠", label: "Início", path: "/home" },
-  { icon: "📝", label: "Questionário", path: "/questionario" },
-  { icon: "📋", label: "Histórico", path: "/historico" },
-  { icon: "💬", label: "Chat de apoio", path: "/chat" },
-  { icon: "💡", label: "Insights", path: "/insights" },
+  {
+    icon: <ClipboardList size={15} />,
+    label: "Questionário",
+    path: "/questionario",
+  },
+  { icon: <History size={15} />, label: "Histórico", path: "/historico" },
+  {
+    icon: <MessageSquare size={15} />,
+    label: "Chat com psicólogo",
+    path: "/chat",
+  },
+  { icon: <Lightbulb size={15} />, label: "Insights", path: "/insights" },
 ];
 
 const METRICS = [
@@ -38,8 +53,8 @@ export default function HomeFuncionario() {
   const [user, setUser] = useState(null);
   const [questionnaire, setQuestionnaire] = useState(null);
   const [gamification, setGamification] = useState(null);
-  const navigate = useNavigate();
   const [totalPoints, setTotalPoints] = useState(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const stored = localStorage.getItem("user");
@@ -48,10 +63,8 @@ export default function HomeFuncionario() {
       return;
     }
     setUser(JSON.parse(stored));
-
     const token = localStorage.getItem("token");
     if (!token) return;
-
     fetch("http://localhost:8000/api/questionnaires/latest/", {
       headers: { Authorization: `Bearer ${token}` },
     })
@@ -60,12 +73,16 @@ export default function HomeFuncionario() {
         if (d) setQuestionnaire(d);
       })
       .catch(() => {});
-
     fetch("http://localhost:8000/api/gamification/", {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((r) => (r.ok ? r.json() : null))
-      .then(d => { if (d) { setGamification(d); setTotalPoints(d.total_points ?? 0); } })
+      .then((d) => {
+        if (d) {
+          setGamification(d);
+          setTotalPoints(d.total_points ?? 0);
+        }
+      })
       .catch(() => {});
   }, [navigate]);
 
@@ -79,7 +96,7 @@ export default function HomeFuncionario() {
   if (!user) return null;
 
   const firstName = user.first_name || user.username || "Usuário";
-  const streak = user.login_streak ?? 0;
+  const streak = gamification?.login_streak ?? 0;
   const maxPoints = 1500;
   const progress = Math.min((totalPoints / maxPoints) * 100, 100);
   const today = new Date().toLocaleDateString("pt-BR", {
@@ -92,7 +109,7 @@ export default function HomeFuncionario() {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <div className="bg-green-700 h-12 flex items-center px-5 gap-3 flex-shrink-0">
         <span className="text-white font-medium text-sm flex-1">
-          🧠 MentisTech
+          MentisTech
         </span>
         <div className="flex items-center gap-2">
           <span className="text-[10px] bg-white/15 text-white px-2 py-0.5 rounded-full">
@@ -121,7 +138,7 @@ export default function HomeFuncionario() {
               onClick={() => navigate(item.path)}
               className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs w-full text-left text-gray-600 hover:bg-gray-50 transition-colors"
             >
-              <span>{item.icon}</span>
+              {item.icon}
               {item.label}
             </button>
           ))}
@@ -129,7 +146,7 @@ export default function HomeFuncionario() {
 
         <div className="flex-1 overflow-y-auto p-6">
           <h1 className="text-lg font-semibold text-gray-900 mb-0.5">
-            Olá, {firstName} 👋
+            Olá, {firstName}
           </h1>
           <p className="text-xs text-gray-400 mb-5 capitalize">{today}</p>
 
@@ -155,25 +172,28 @@ export default function HomeFuncionario() {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
+            <div className="mt-4">
+              <GraficoFuncionario />
+            </div>
             <div className="bg-gray-50 border border-gray-100 rounded-xl p-4">
               <p className="text-sm font-medium text-gray-800 mb-3">
                 Ações rápidas
               </p>
               {[
                 {
-                  icon: "📝",
+                  icon: <ClipboardList size={16} />,
                   title: "Questionário semanal",
                   sub: "Disponível agora",
                   path: "/questionario",
                 },
                 {
-                  icon: "💬",
-                  title: "Chat de acolhimento",
-                  sub: "Apoio emocional com IA",
+                  icon: <MessageSquare size={16} />,
+                  title: "Chat com psicólogo",
+                  sub: "Converse diretamente com seu psicólogo",
                   path: "/chat",
                 },
                 {
-                  icon: "💡",
+                  icon: <Lightbulb size={16} />,
                   title: "Meus insights",
                   sub: "Ver recomendações",
                   path: "/insights",
@@ -184,7 +204,7 @@ export default function HomeFuncionario() {
                   onClick={() => navigate(a.path)}
                   className="flex items-center gap-3 px-3 py-2.5 bg-white border border-gray-100 hover:border-green-500 rounded-xl mb-2 last:mb-0 cursor-pointer transition-colors"
                 >
-                  <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center text-base flex-shrink-0">
+                  <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center text-green-700 flex-shrink-0">
                     {a.icon}
                   </div>
                   <div className="flex-1">
@@ -203,18 +223,16 @@ export default function HomeFuncionario() {
             <div className="flex flex-col gap-4">
               <div className="bg-gray-50 border border-gray-100 rounded-xl p-4">
                 <p className="text-sm font-medium text-gray-800 mb-3">
-                  Minha pontuação 🏆
+                  Minha pontuação
                 </p>
                 <div className="flex items-center gap-4 bg-white border border-gray-100 rounded-xl px-4 py-3 mb-3">
-                  <span className="text-3xl font-medium text-green-700 leading-none">
-                    {totalPoints}
-                  </span>
+                  <Trophy size={28} className="text-green-700 flex-shrink-0" />
                   <div>
-                    <div className="text-xs font-medium text-gray-800">
-                      pontos totais
+                    <div className="text-2xl font-medium text-green-700 leading-none">
+                      {totalPoints}
                     </div>
                     <div className="text-[11px] text-gray-400 mt-0.5">
-                      Login diário + questionários respondidos
+                      pontos totais · {streak} dias consecutivos
                     </div>
                   </div>
                 </div>
@@ -230,6 +248,9 @@ export default function HomeFuncionario() {
                     className="h-full bg-green-600 rounded-full transition-all"
                     style={{ width: `${progress}%` }}
                   />
+                </div>
+                <div className="text-[11px] text-gray-400 mt-1.5">
+                  faltam {(maxPoints - totalPoints).toLocaleString("pt-BR")} pts
                 </div>
               </div>
 
@@ -248,7 +269,7 @@ export default function HomeFuncionario() {
                         : "Questionário respondido"}
                     </span>
                     <span className="text-xs font-medium text-green-700">
-                      +{e.totalPoints} pts
+                      +{e.points} pts
                     </span>
                   </div>
                 ))}

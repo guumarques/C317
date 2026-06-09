@@ -64,11 +64,11 @@ export default function PsicologoQuestionarios() {
     <div className="min-h-screen bg-gray-50">
       <div className="bg-green-700 h-12 flex items-center px-5 gap-3">
         <button onClick={() => navigate("/home/psicologo")} className="text-white/70 text-xs hover:text-white">← Voltar</button>
-        <span className="text-white font-medium text-sm flex-1">📋 Histórico de consultas</span>
+        <span className="text-white font-medium text-sm flex-1">Questionários dos funcionários</span>
       </div>
 
       <div className="max-w-3xl mx-auto px-4 py-8">
-        <h1 className="text-lg font-semibold text-gray-900 mb-1">Histórico de consultas</h1>
+        <h1 className="text-lg font-semibold text-gray-900 mb-1">Questionários dos funcionários</h1>
         <p className="text-xs text-gray-400 mb-6">Questionários respondidos por funcionário · clique para expandir</p>
 
         {loading && <div className="text-sm text-gray-400 text-center py-12">Carregando...</div>}

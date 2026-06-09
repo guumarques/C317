@@ -60,7 +60,7 @@ export default function Dashboard() {
     Promise.all([
       fetch(`${BASE}/dashboard/`,            { headers: authHeaders() }).then(r => r.json()),
       fetch(`${BASE}/dashboard/evolution/`,  { headers: authHeaders() }).then(r => r.json()),
-      fetch(`${BASE}/dashboard/chat-stats/`, { headers: authHeaders() }).then(r => r.json()),
+      fetch(`${BASE}/dashboard/chat-stats?/`, { headers: authHeaders() }).then(r => r.json()),
     ])
       .then(([d, e, c]) => { setData(d); setEvolution(e); setChatStats(c); })
       .catch(() => setError("Erro ao carregar dados do dashboard."))
@@ -77,7 +77,7 @@ export default function Dashboard() {
       {/* Header */}
       <div className="bg-green-700 h-12 flex items-center px-5 gap-3">
         <button onClick={() => navigate("/home/gestor")} className="text-white/70 text-xs hover:text-white">← Voltar</button>
-        <span className="text-white font-medium text-sm flex-1">📊 Dashboard da equipe</span>
+        <span className="text-white font-medium text-sm flex-1">Dashboard da equipe</span>
       </div>
 
       <div className="max-w-3xl mx-auto px-4 py-8">

@@ -13,7 +13,8 @@ import Dashboard              from "./pages/Dashboard";
 import Alertas                from "./pages/Alertas";
 import PsicologoInsights      from "./pages/PsicologoInsights";
 import PsicologoQuestionarios from "./pages/PsicologoQuestionarios";
-import PsicologoChats         from "./pages/PsicologoChats";
+import PsicologoConsultas     from "./pages/PsicologoConsultas";
+import PsicologoChat          from "./pages/PsicologoChat";
 
 function PrivateRoute({ children, roles }) {
   const token = localStorage.getItem("token");
@@ -36,7 +37,6 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Públicas */}
         <Route path="/"         element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/lgpd"     element={<Lgpd />} />
@@ -54,7 +54,8 @@ export default function App() {
         <Route path="/home/psicologo"          element={<PrivateRoute roles={["psychologist"]}><HomePsicologo /></PrivateRoute>} />
         <Route path="/psicologo/insights"      element={<PrivateRoute roles={["psychologist"]}><PsicologoInsights /></PrivateRoute>} />
         <Route path="/psicologo/questionarios" element={<PrivateRoute roles={["psychologist"]}><PsicologoQuestionarios /></PrivateRoute>} />
-        <Route path="/psicologo/chats"         element={<PrivateRoute roles={["psychologist"]}><PsicologoChats /></PrivateRoute>} />
+        <Route path="/psicologo/consultas"     element={<PrivateRoute roles={["psychologist"]}><PsicologoConsultas /></PrivateRoute>} />
+        <Route path="/psicologo/chat"          element={<PrivateRoute roles={["psychologist"]}><PsicologoChat /></PrivateRoute>} />
 
         {/* GESTOR */}
         <Route path="/home/gestor" element={<PrivateRoute roles={["manager", "admin"]}><HomeGestor /></PrivateRoute>} />

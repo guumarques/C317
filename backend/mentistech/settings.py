@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'dashboard',
     'alerts',
     'gamification',
+    'consultations',
 ]
 
 SIMPLE_JWT = {
