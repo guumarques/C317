@@ -6,6 +6,7 @@ class QuestionnaireUserSerializer(serializers.Serializer):
     id         = serializers.UUIDField()
     first_name = serializers.CharField()
     last_name  = serializers.CharField()
+    role       = serializers.CharField()
 
 
 class QuestionnaireSerializer(serializers.ModelSerializer):
