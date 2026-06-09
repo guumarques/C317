@@ -98,8 +98,8 @@ class DashboardChatStatsView(APIView):
         company = request.user.company
         users = User.objects.filter(company=company, role='employee')
 
-        total_sessions = ChatSession.objects.filter(user__in=users).count()
-        total_messages = ChatMessage.objects.filter(session__user__in=users).count()
+        total_sessions = ChatSession.objects.filter(employee__in=users).count()
+        total_messages = ChatMessage.objects.filter(session__employee__in=users).count()
 
         return Response({
             'total_sessions': total_sessions,

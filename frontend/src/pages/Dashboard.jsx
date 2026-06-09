@@ -134,7 +134,7 @@ export default function Dashboard() {
 
             {/* Métricas de uso do LLM */}
             <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm mb-4">
-              <h2 className="text-sm font-semibold text-gray-800 mb-4">Uso do chat de apoio (LLM)</h2>
+              <h2 className="text-sm font-semibold text-gray-800 mb-4">Uso do chat de apoio</h2>
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-gray-50 rounded-xl p-4">
                   <div className="text-2xl font-medium text-gray-900">{chatStats?.total_sessions ?? "—"}</div>
