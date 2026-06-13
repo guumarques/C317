@@ -135,7 +135,7 @@ export default function Questionario() {
           onClick={() => navigate("/home")}
           className="text-center text-xs text-gray-400 hover:text-gray-600 mt-4 cursor-pointer"
         >
-          Salvar e continuar depois
+          Sair do questionário
         </p>
       </div>
     </div>

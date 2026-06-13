@@ -82,7 +82,7 @@ export default function Dashboard() {
 
       <div className="max-w-3xl mx-auto px-4 py-8">
         <h1 className="text-lg font-semibold text-gray-900 mb-1">Dashboard</h1>
-        <p className="text-xs text-gray-400 mb-6">Dados agregados e anonimizados da equipe</p>
+        <p className="text-xs text-gray-400 mb-6">Dados agregados dos membros da equipe</p>
 
         {loading && <div className="text-sm text-gray-400 text-center py-12">Carregando...</div>}
         {error   && <div className="text-sm text-red-500 bg-red-50 rounded-xl px-4 py-3">{error}</div>}
@@ -103,7 +103,7 @@ export default function Dashboard() {
 
             {/* Saúde média geral */}
             <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm mb-4">
-              <h2 className="text-sm font-semibold text-gray-800 mb-4">Saúde média da equipe</h2>
+              <h2 className="text-sm font-semibold text-gray-800 mb-4">Saúde mental da equipe</h2>
               <MetricBar label="Estresse médio"  value={avg.avg_stress}     />
               <MetricBar label="Ansiedade média" value={avg.avg_anxiety}    />
               <MetricBar label="Burnout médio"   value={avg.avg_burnout}    />
@@ -124,7 +124,7 @@ export default function Dashboard() {
                 </div>
               </div>
               <p className="text-[11px] text-gray-400 mb-3">
-                Comparativo: período atual vs período anterior · badge mostra a variação (negativo = melhora)
+                Comparativo: período atual vs período anterior
               </p>
               <DeltaBadge label="Estresse"  atual={atual.avg_stress}     anterior={anterior.avg_stress}     />
               <DeltaBadge label="Ansiedade" atual={atual.avg_anxiety}    anterior={anterior.avg_anxiety}    />
@@ -134,7 +134,7 @@ export default function Dashboard() {
 
             {/* Métricas de uso do LLM */}
             <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm mb-4">
-              <h2 className="text-sm font-semibold text-gray-800 mb-4">Uso do chat de apoio</h2>
+              <h2 className="text-sm font-semibold text-gray-800 mb-4">Volume de uso do chat de apoio</h2>
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-gray-50 rounded-xl p-4">
                   <div className="text-2xl font-medium text-gray-900">{chatStats?.total_sessions ?? "—"}</div>
@@ -146,13 +146,13 @@ export default function Dashboard() {
                 </div>
               </div>
               <p className="text-[11px] text-gray-400 mt-3">
-              Apenas volume de uso. Nenhum conteúdo das conversas é exibido.
+              O conteúdo das conversas não será exibido.
               </p>
             </div>
 
             {/* Aviso LGPD */}
             <div className="text-xs text-gray-400 bg-gray-50 rounded-xl px-4 py-3 border border-gray-100">
-            Dados anonimizados. Nenhuma informação individual é exposta ao gestor.
+            Dados anonimizados. Nenhuma informação individual pode ser exposta.
             </div>
           </>
         )}

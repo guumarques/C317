@@ -115,9 +115,9 @@ export default function PsicologoQuestionarios() {
                   {previous && (
                     <div className="bg-gray-50 rounded-xl p-4 mb-4">
                       <p className="text-xs font-medium text-gray-700 mb-3">
-                        Verificação de melhora
+                        Último questionário
                         <span className="text-gray-400 font-normal ml-1">
-                          (último vs anterior · negativo = melhora)
+                          (Comparação com o questionário anterior)
                         </span>
                       </p>
                       <div className="grid grid-cols-2 gap-2">
