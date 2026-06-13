@@ -22,7 +22,6 @@ export default function HomeGestor() {
   if (!user) return null;
 
   const NAV = [
-    { icon: <Home size={15} />,    label: "Início",    path: "/home/gestor" },
     { icon: <BarChart2 size={15} />, label: "Dashboard", path: "/dashboard" },
     { icon: <Bell size={15} />,    label: "Alertas",   path: "/alertas" },
   ];
